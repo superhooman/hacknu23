@@ -1,0 +1,47 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Sale {
+    id        Int      @id @default(autoincrement())
+    barcode   Int   
+    quantity  Int      @default(1)
+    price     Int      @default(0)
+    sale_time DateTime @default(now())
+    margin    Int      @default(0)
+
+    @@index([barcode, sale_time], name: "sale_barcode_time_idx")
+
+    mapping Mapping[]
+}
+
+model Supply {
+    id          Int      @id @default(autoincrement())
+    barcode     Int   
+    quantity    Int      @default(1)
+    price       Int      @default(0)
+    supply_time DateTime @default(now())
+    remainder   Int      @default(0)
+
+    @@index([barcode, supply_time], name: "supply_barcode_time_idx")
+
+    mapping Mapping[]
+}
+
+model Mapping {
+    id        Int      @id @default(autoincrement())
+    sale_id   Int
+    supply_id Int
+    start     Int
+    end       Int
+
+    sale  Sale   @relation(fields: [sale_id], references: [id])
+    supply Supply @relation(fields: [supply_id], references: [id])
+
+    @@index([sale_id, supply_id], name: "mapping_sale_supply_idx")
+}
